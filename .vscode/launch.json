@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "npm run dev",
+        "skipFiles": ["<node_internals>/**"],
+        "program": "${workspaceFolder}/app.js",  // Aponta para o arquivo app.js principal
+        "env": {
+          "NODE_ENV": "local",                   // Define o ambiente como "local"
+          "dbUsername": "admin",                // Defina variáveis de ambiente para conexão ao banco de dados
+          "dbPassword": "p1c4d1nh0",
+          "databaseName": "db-local-archref-node",
+          "mongodbHost": "127.0.0.1:27017",
+          "mongodbDialect": "mongodb",
+          "authSource": "admin",
+          "port": "3000"
+        },
+        "console": "integratedTerminal",          // Saída do console no terminal integrado do VSCode
+        "internalConsoleOptions": "neverOpen",    // Para não abrir o console do depurador
+        "outputCapture": "std"                    // Captura stdout e stderr no terminal integrado
+      }
+    ]
+  }
+  

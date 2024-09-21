@@ -1,0 +1,18 @@
+{
+    "web": {
+      "port": 3000
+    },
+    "db": {
+      "username": "admin",
+      "password": "p1c4d1nh0",
+      "database": "db-local-npci-devsecops-fx-lookup-ms",
+      "mongodbHost": ["127.0.0.1:27017"],
+      "dialect": "mongodb",
+      "logging": "",
+      "options": {
+        "authSource": "admin",
+        "replicaSet": ""
+      }
+    }
+  }
+  

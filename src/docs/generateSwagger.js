@@ -1,4 +1,4 @@
-const routes = require('../routes/userRoutes'); // Certifique-se de não usar destructuring
+const routes = require('../interfaces/http/routes/userRoutes'); // Certifique-se de não usar destructuring
 const { generateSwagger } = require('./SwaggerDocGenerator');
 const { writeFileSync } = require('fs');
 const path = require('path');

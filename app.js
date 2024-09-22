@@ -1,9 +1,9 @@
 const express = require('express');
-const connectToDatabase = require('./config/db'); // Importa a conexão com MongoDB
+const connectToDatabase = require('./src/infra/db/db'); // Importa a conexão com MongoDB
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./docs/swagger.json');
-const userRoutes = require('./routes/userRoutes');
-const validate = require('./middlewares/validationMiddleware');
+const swaggerDocument = require('./src/docs/swagger.json');
+const userRoutes = require('./src/interfaces/http/routes/userRoutes');
+const validate = require('./src/middlewares/validationMiddleware');
 
 // Inicialização do Express
 const app = express();

@@ -1,5 +1,5 @@
 // /repositories/userRepository.js
-const User = require('../models/User'); // Supondo que User seja o modelo Mongoose
+const User = require('../../infra/db//models/User'); // Supondo que User seja o modelo Mongoose
 
 const create = async (userData) => {
   return await User.create(userData);

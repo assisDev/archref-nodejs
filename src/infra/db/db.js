@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const loadConfig = require('./config'); // Carregar as configurações (local ou produção)
+const loadConfig = require('../../../config/config'); // Carregar as configurações (local ou produção)
 
 // Carregar as configurações do banco de dados
 const config = loadConfig();

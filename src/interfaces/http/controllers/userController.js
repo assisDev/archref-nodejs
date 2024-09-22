@@ -1,6 +1,6 @@
 // /controllers/userController.js
-const userService = require('../services/userService');
-const asyncMiddleware = require('../middlewares/asyncMiddleware');
+const userService = require('../../../application/services/userService');
+const asyncMiddleware = require('../../../middlewares/asyncMiddleware');
 const httpConstants = {
   OK: 200,
   CREATED: 201,

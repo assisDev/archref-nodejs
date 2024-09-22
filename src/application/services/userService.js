@@ -1,5 +1,5 @@
 // /services/userService.js
-const userRepository = require('../repositories/userRepository');
+const userRepository = require('../../domain/repositories/userRepository');
 
 const createUser = async (userData) => {
   // Aqui poderia haver alguma lógica de negócio antes de criar o usuário

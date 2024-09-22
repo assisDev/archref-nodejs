@@ -1,3 +1,4 @@
+// src/infra/db/models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -13,9 +14,9 @@ const userSchema = new mongoose.Schema({
   age: {
     type: Number,
     required: true,
-  },
+  }
 }, {
-  timestamps: true, // Adiciona createdAt e updatedAt automaticamente
+  timestamps: true
 });
 
 module.exports = mongoose.model('User', userSchema);

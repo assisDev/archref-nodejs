@@ -1,3 +1,4 @@
+// src/docs/parseJoiSchema.js
 const j2s = require('joi-to-swagger');
 
 // Função que converte um schema Joi em um schema Swagger

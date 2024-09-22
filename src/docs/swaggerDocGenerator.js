@@ -1,3 +1,4 @@
+// src/docs/swaggerDocGenerator.js
 const { parseJoiSchema } = require('./parseJoiSchema'); // Certifique-se de que o caminho está correto
 
 const pathToSwagger = (route) => {

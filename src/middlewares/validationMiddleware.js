@@ -1,3 +1,4 @@
+// src/middlewares/validationMiddleware.js
 const validate = (schemas) => {
   return (req, res, next) => {
     // Validação de headers

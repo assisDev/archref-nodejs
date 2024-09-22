@@ -1,5 +1,4 @@
-// /routes/userRoutes.js
-const userController = require('../controllers/userController');
+// src/interfaces/http/routes/userRoutes.js
 const userSchema = require('../schemas/userSchema');
 
 module.exports = [
@@ -10,7 +9,7 @@ module.exports = [
       headers: userSchema.headers,
       body: userSchema.createUser,
     },
-    handler: userController.create,
+    handler: 'userController.create',
   },
   {
     method: 'get',
@@ -19,7 +18,7 @@ module.exports = [
       headers: userSchema.headers,
       params: userSchema.getUser,
     },
-    handler: userController.findOne,
+    handler: 'userController.findOne',
   },
   {
     method: 'put',
@@ -29,7 +28,7 @@ module.exports = [
       params: userSchema.getUser,
       body: userSchema.updateUser,
     },
-    handler: userController.updateOne,
+    handler: 'userController.updateOne',
   },
   {
     method: 'delete',
@@ -38,6 +37,6 @@ module.exports = [
       headers: userSchema.headers,
       params: userSchema.getUser,
     },
-    handler: userController.deleteOne,
+    handler: 'userController.deleteOne',
   },
 ];

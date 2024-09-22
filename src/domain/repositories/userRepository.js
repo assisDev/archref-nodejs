@@ -1,30 +1,18 @@
-// /repositories/userRepository.js
-const User = require('../../infra/db//models/User'); // Supondo que User seja o modelo Mongoose
+// src/domain/repositories/userRepository.js
+module.exports = ({ User }) => ({
+  create: async (userData) => {
+    return new User(userData).save();
+  },
 
-const create = async (userData) => {
-  return await User.create(userData);
-};
+  findById: async (id) => {
+    return User.findById(id);
+  },
 
-const findById = async (userId) => {
-  return await User.findById(userId);
-};
+  updateById: async (id, userData) => {
+    return User.findByIdAndUpdate(id, userData, { new: true });
+  },
 
-const findAll = async () => {
-  return await User.find({});
-};
-
-const updateById = async (userId, updateData) => {
-  return await User.findByIdAndUpdate(userId, updateData, { new: true });
-};
-
-const deleteById = async (userId) => {
-  return await User.findByIdAndDelete(userId);
-};
-
-module.exports = {
-  create,
-  findById,
-  findAll,
-  updateById,
-  deleteById,
-};
+  deleteById: async (id) => {
+    return User.findByIdAndDelete(id);
+  }
+});

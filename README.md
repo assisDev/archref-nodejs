@@ -1,241 +1,203 @@
 # Archref Node.js
 
-Este projeto **archref-nodejs** é uma aplicação backend construída com **Node.js** e **Express** que inclui suporte para conexão ao MongoDB, gerenciamento de usuários, validação de dados com **Joi**, documentação automática de API com **Swagger**, e integração com **RabbitMQ**. A aplicação utiliza o **Docker** para a configuração do ambiente de desenvolvimento e produção.
+## Visão Geral
 
-## Índice
+**Archref** é uma aplicação **Node.js** modular, escalável e altamente configurável, que segue as melhores práticas de **Clean Architecture**, **SOLID**, e **Injeção de Dependência** utilizando o **Awilix**. O projeto utiliza **MongoDB** como banco de dados e **RabbitMQ** como sistema de mensageria, com suporte para **Swagger Autogen** para a geração automática de documentação da API.
 
-1. [Tecnologias Utilizadas](#tecnologias-utilizadas)
-2. [Estrutura do Projeto](#estrutura-do-projeto)
-3. [Configurações de Ambiente](#configurações-de-ambiente)
-4. [Instalação e Execução](#instalação-e-execução)
-5. [Swagger: Documentação da API](#swagger-documentação-da-api)
-6. [Depuração com Visual Studio Code](#depuração-com-visual-studio-code)
-7. [Docker e Docker Compose](#docker-e-docker-compose)
-8. [Rotas da API](#rotas-da-api)
-9. [Testes](#testes)
-10. [Contribuição](#contribuição)
+### Principais Tecnologias:
 
-## Tecnologias Utilizadas
-
-- **Node.js**: Runtime de JavaScript no lado do servidor.
-- **Express.js**: Framework minimalista para construção de APIs.
-- **MongoDB e Mongoose**: Banco de dados NoSQL e ODM (Object Data Modeling).
-- **Joi**: Validação de dados para JavaScript.
-- **Swagger**: Geração automática de documentação para APIs REST.
-- **RabbitMQ**: Broker de mensagens para filas de trabalho.
-- **Docker**: Criação de contêineres para a aplicação e serviços como MongoDB e RabbitMQ.
-- **Visual Studio Code**: Editor de código recomendado para desenvolvimento e depuração.
+- **Node.js** (v20.16.0)
+- **Express.js** para o servidor HTTP
+- **MongoDB** como banco de dados NoSQL
+- **Mongoose** como ORM para MongoDB
+- **Awilix** para injeção de dependência
+- **Joi** para validação de schemas
+- **Swagger** para documentação automática da API
+- **Docker** e **Docker Compose** para o ambiente de contêineres
+- **RabbitMQ** para mensagens AMQP (opcional, para expansão futura)
 
 ## Estrutura do Projeto
 
-Abaixo está a estrutura de diretórios e arquivos do projeto, com uma breve explicação de cada parte:
-
-```
+```bash
 /config
-  ├── local.json           # Configurações de ambiente local
-  ├── env.json             # Configurações de ambiente de produção com placeholders ($vault)
-  ├── config.js            # Script para carregar as configurações corretas dependendo do ambiente
-  └── db.js                # Script para conectar ao MongoDB usando as configurações carregadas
+  ├── local.json                   # Configurações de ambiente local
+  ├── env.json                     # Configurações de produção (placeholders com $vault)
+  └── config.js                    # Script para carregar as configurações corretas
 
-/controllers
-  ├── userController.js     # Controlador para lidar com as requisições de usuários
-
-/docs
-  ├── generateSwagger.js    # Script para gerar a documentação Swagger
-  └── swagger.json          # Arquivo JSON gerado com a documentação Swagger
-
-/middlewares
-  └── validationMiddleware.js # Middleware para validação de dados
-
-/models
-  ├── User.js               # Modelo do usuário (Mongoose)
-
-/repositories
-  ├── userRepository.js      # Repositório de usuários para interagir com o banco de dados
-
-/routes
-  ├── userRoutes.js          # Definição das rotas relacionadas aos usuários
-
-/schemas
-  ├── headersSchema.js       # Schemas Joi para validação dos headers
-  ├── userBodySchema.js      # Schemas Joi para validação do corpo das requisições de usuários
-
-/services
-  ├── userService.js         # Serviço responsável pela lógica de negócios relacionada aos usuários
-
-/vscode
-  └── launch.json            # Configuração de depuração do Visual Studio Code
-
-app.js                     # Arquivo principal para iniciar o servidor e configurar rotas
-docker-compose.yml          # Arquivo Docker Compose para MongoDB, RabbitMQ, e mongo-express
-Dockerfile                  # Dockerfile para construir o aplicativo (se necessário)
-package.json                # Arquivo de dependências e scripts NPM
-```
-
-## Configurações de Ambiente
-
-Existem dois arquivos principais para configurar o ambiente da aplicação:
-
-- **`config/local.json`**: Configurações para ambiente de desenvolvimento local, contendo informações como porta e credenciais do MongoDB.
+/src
+  /application
+    /services
+      └── userService.js            # Serviço de lógica de negócios de usuários
   
-- **`config/env.json`**: Configurações para o ambiente de produção. Usa placeholders para variáveis sensíveis que serão preenchidas com variáveis de ambiente reais (gerenciadas, por exemplo, via Vault).
+  /container
+    └── container.js               # Configuração de Injeção de Dependência (Awilix)
 
-### Estrutura do `local.json`
+  /domain
+    /repositories
+      └── userRepository.js         # Repositório de usuários (interage com o banco via Mongoose)
 
-```json
-{
-  "web": {
-    "port": 3000
-  },
-  "db": {
-    "username": "admin",
-    "password": "p1c4d1nh0",
-    "database": "db-local-npci-devsecops-fx-lookup-ms",
-    "mongodbHost": ["127.0.0.1:27017"],
-    "dialect": "mongodb",
-    "logging": "",
-    "options": {
-      "authSource": "admin",
-      "replicaSet": ""
-    }
-  }
-}
+  /infra
+    /db
+      ├── db.js                     # Script de conexão ao MongoDB
+      └── models
+          └── User.js               # Modelo Mongoose do usuário
+
+  /interfaces
+    /http
+      /controllers
+        └── userController.js       # Controlador de requisições HTTP de usuários
+      /routes
+        └── userRoutes.js           # Definição das rotas HTTP de usuários
+      /schemas
+        └── userSchema.js           # Schemas Joi para validação das rotas
+
+  /middlewares
+    ├── asyncMiddleware.js          # Middleware para lidar com erros assíncronos
+    └── validationMiddleware.js     # Middleware de validação para schemas Joi
+
+  /docs
+    ├── generateSwagger.js          # Geração automática de documentação Swagger
+    ├── parseJoiSchema.js           # Conversão de schemas Joi para Swagger
+    └── swaggerDocGenerator.js      # Geração de documentação Swagger a partir das rotas
+    └── swagger.json                # Documentação Swagger gerada
+
+app.js                              # Arquivo principal para inicialização do servidor e conexão com o MongoDB
+docker-compose.yml                  # Docker Compose para MongoDB, Mongo Express, e RabbitMQ
+Dockerfile                          # Dockerfile para rodar a aplicação
+package.json                        # Dependências e scripts NPM
 ```
 
-### Estrutura do `env.json`
+## Funcionalidades
 
-```json
-{
-  "web": {
-    "port": "$vault.port"
-  },
-  "db": {
-    "username": "$vault.dbUsername",
-    "password": "$vault.dbPassword",
-    "database": "$vault.databaseName",
-    "mongodbHost": ["$vault.mongodbHost"],
-    "dialect": "$vault.mongodbDialect",
-    "logging": "",
-    "options": {
-      "authSource": "$vault.authSource",
-      "replicaSet": "$vault.replicaSet"
-    }
-  }
-}
-```
+### 1. **Injeção de Dependência com Awilix**
+- Todo o projeto segue o princípio de **Injeção de Dependência**, onde os serviços, repositórios e controladores são resolvidos automaticamente com **Awilix**. Isso melhora a modularidade e facilita testes e manutenção.
 
-## Instalação e Execução
+### 2. **Documentação Automática da API com Swagger**
+- A documentação da API é gerada automaticamente a partir dos **schemas Joi**. O arquivo **swagger.json** é gerado dinamicamente e pode ser visualizado através do **Swagger UI**.
 
-### Pré-requisitos
+### 3. **Validação de Dados com Joi**
+- Todas as entradas da API (headers, body, params) são validadas utilizando **Joi**, garantindo que os dados estejam no formato esperado antes de serem processados.
 
-- **Node.js** (versão 14.x ou superior)
-- **Docker** (com Docker Compose)
+### 4. **MongoDB e Mongoose**
+- **Mongoose** é utilizado como ORM para interagir com o banco de dados **MongoDB**. O esquema de usuários é definido no arquivo `User.js`, e as operações de CRUD são realizadas pelo `userRepository.js`.
 
-### Passo 1: Clonar o Repositório
+### 5. **Arquitetura Limpa e Escalável**
+- O projeto segue uma arquitetura limpa (Clean Architecture), separando camadas de domínio, aplicação, infraestrutura e interfaces. Isso permite fácil escalabilidade e extensão, como a adição de **RabbitMQ** para mensageria.
+
+## Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado:
+
+- **Node.js** (v20 ou superior)
+- **Docker** e **Docker Compose**
+- **MongoDB** localmente ou usando Docker
+- **RabbitMQ** (opcional, para mensageria)
+
+## Instalação
+
+1. **Clonar o repositório**:
 
 ```bash
-git clone https://github.com/seu-usuario/archref-nodejs.git
-cd archref-nodejs
+git clone https://github.com/seu-usuario/archref.git
+cd archref
 ```
 
-### Passo 2: Instalar Dependências
+2. **Instalar dependências**:
 
 ```bash
 npm install
 ```
 
-### Passo 3: Executar com Docker
+3. **Configurar variáveis de ambiente**:
 
-Para rodar o MongoDB, RabbitMQ e Mongo Express no Docker:
+- As configurações para ambiente local estão em **`config/local.json`**.
+- Para ambiente de produção, as variáveis dinâmicas podem ser configuradas no **`env.json`**.
+
+4. **Configurar Docker** (opcional):
+
+O projeto utiliza **MongoDB**, **Mongo Express** e **RabbitMQ** via Docker. Se você quiser rodar esses serviços em contêineres:
 
 ```bash
 docker-compose up -d
 ```
 
-### Passo 4: Rodar a Aplicação
+Isso iniciará o MongoDB, o Mongo Express (interface gráfica) e o RabbitMQ.
+
+## Rodando o Projeto
+
+### Ambiente de Desenvolvimento
+
+Para rodar o servidor no ambiente de desenvolvimento:
 
 ```bash
-npm start
+npm run dev
 ```
 
-### Passo 5: Acessar a Aplicação
+Isso vai iniciar o servidor na porta 3000 e gerar o arquivo **swagger.json** automaticamente para a documentação da API.
 
-- Acesse o Swagger para explorar a API: **[http://localhost:3000/api/docs](http://localhost:3000/api/docs)**
-- Acesse o **mongo-express** (interface para gerenciar MongoDB): **[http://localhost:8081](http://localhost:8081)**
+### Acessando a Documentação Swagger
 
-## Swagger: Documentação da API
+Após iniciar o servidor, a documentação da API pode ser acessada em:
 
-A documentação da API é gerada automaticamente usando o **Swagger**. Você pode acessá-la via:
-
-```bash
+```
 http://localhost:3000/api/docs
 ```
 
-A documentação é gerada pelo arquivo **`docs/generateSwagger.js`**, que inspeciona as rotas e os schemas Joi definidos para cada endpoint.
+### Ambiente de Produção
 
-## Depuração com Visual Studio Code
-
-Para configurar a depuração no **Visual Studio Code**, foi incluído um arquivo **`launch.json`** na pasta **`.vscode/`**. 
-
-### Para iniciar o debugger:
-
-1. Abra o **Visual Studio Code**.
-2. Pressione `F5` ou vá para o menu **Run > Start Debugging**.
-
-O depurador estará configurado para rodar o projeto e conectar ao MongoDB.
-
-## Docker e Docker Compose
-
-O arquivo **`docker-compose.yml`** define três serviços principais:
-
-1. **MongoDB**: Banco de dados NoSQL usado pela aplicação.
-2. **mongo-express**: Interface web para gerenciar o MongoDB.
-3. **RabbitMQ**: Serviço de filas de mensagens.
-
-### Rodar todos os serviços:
+Para rodar o servidor no ambiente de produção:
 
 ```bash
-docker-compose up -d
+NODE_ENV=production npm start
 ```
 
-### Parar todos os serviços:
+## Estrutura das Rotas
 
-```bash
-docker-compose down
-```
+### POST `/users`
+- **Descrição**: Cria um novo usuário.
+- **Validação**: 
+  - Headers: `x-api-key` (obrigatório)
+  - Body: `name`, `email`, `age` (todos obrigatórios)
+  
+### GET `/users/:id`
+- **Descrição**: Busca um usuário por ID.
+- **Validação**: 
+  - Headers: `x-api-key` (obrigatório)
+  - Params: `id` (obrigatório, 24 caracteres)
 
-## Rotas da API
+### PUT `/users/:id`
+- **Descrição**: Atualiza um usuário.
+- **Validação**:
+  - Headers: `x-api-key` (obrigatório)
+  - Params: `id` (obrigatório)
+  - Body: `name`, `email`, `age` (opcionais)
 
-### Rotas de Usuário
-
-- **POST /users**: Cria um novo usuário.
-- **GET /users/:id**: Busca um usuário por ID.
-- **PUT /users/:id**: Atualiza as informações de um usuário.
-- **DELETE /users/:id**: Remove um usuário.
-
-### Exemplos de Validações com Joi
-
-O projeto usa **Joi** para validar os dados de entrada nas rotas. As validações são definidas na pasta **`schemas`**:
-
-- **`headersSchema.js`**: Valida os headers das requisições.
-- **`userBodySchema.js`**: Valida o corpo das requisições para criação/atualização de usuários.
+### DELETE `/users/:id`
+- **Descrição**: Remove um usuário.
+- **Validação**:
+  - Headers: `x-api-key` (obrigatório)
+  - Params: `id` (obrigatório)
 
 ## Testes
 
-Os testes devem ser escritos para verificar a lógica de negócios, a interação com o MongoDB e a integração com o RabbitMQ.
+Você pode adicionar testes automatizados usando ferramentas como **Mocha**, **Chai** ou **Jest**. Testes unitários devem ser escritos para os serviços, controladores e repositórios.
 
-Para rodar os testes (caso configurados):
+## Melhorias Futuras
 
-```bash
-npm test
-```
+- **Mensageria com RabbitMQ**: Implementar handlers AMQP para processar mensagens de filas no futuro.
+- **Cache**: Implementar caching para otimizar as operações de leitura de dados.
+- **Testes Automatizados**: Adicionar uma estrutura de testes automatizados para garantir a qualidade do código.
 
 ## Contribuição
 
-Se você deseja contribuir para este projeto, siga os passos abaixo:
+Se quiser contribuir para o projeto:
 
-1. Faça um **fork** do repositório.
-2. Crie um novo **branch**: `git checkout -b minha-feature`.
-3. Faça suas alterações e adicione os **commits**: `git commit -m 'Minha nova feature'`.
-4. Envie suas alterações: `git push origin minha-feature`.
-5. Abra um **pull request** no GitHub.
+1. Faça um fork do repositório.
+2. Crie uma nova branch (`git checkout -b feature/nova-feature`).
+3. Commit suas alterações (`git commit -m 'Add some feature'`).
+4. Dê um push na branch (`git push origin feature/nova-feature`).
+5. Abra um Pull Request.
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.

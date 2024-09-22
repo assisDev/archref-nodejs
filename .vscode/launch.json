@@ -8,7 +8,7 @@
         "skipFiles": ["<node_internals>/**"],
         "program": "${workspaceFolder}/app.js",  // Aponta para o arquivo app.js principal
         "env": {
-          "NODE_ENV": "local",                   // Define o ambiente como "local"
+          "NODE_ENV": "dev",                   // Define o ambiente como "local"
           "dbUsername": "admin",                // Defina variáveis de ambiente para conexão ao banco de dados
           "dbPassword": "p1c4d1nh0",
           "databaseName": "db-local-archref-node",

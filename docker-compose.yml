@@ -1,31 +1,64 @@
 version: "3.7"
 
 services:
+  app:
+    image: my-app:latest
+    environment:
+      dbUsername: ${dbUsername}
+      dbPassword: ${dbPassword}
+      databaseName: ${databaseName}
+      mongodbHost: ${mongodbHost}
+      authSource: ${authSource}
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - app-network
+
   db:
     image: mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: p1c4d1nh0
-    ports:
-      - 27017:27017
-
-  db-admin:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    depends_on:
-      - db
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: p1c4d1nh0
-      ME_CONFIG_MONGODB_SERVER: db
+      MONGO_INITDB_ROOT_USERNAME: ${dbUsername}
+      MONGO_INITDB_ROOT_PASSWORD: ${dbPassword}
+    volumes:
+      - db-data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: "mongo --eval 'db.adminCommand('ping')'"
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
     restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${rabbitmqDefaultUser}
+      RABBITMQ_DEFAULT_PASS: ${rabbitmqDefaultPass}
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - app-network
+    healthcheck:
+      test: "rabbitmqctl status"
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
